@@ -9,7 +9,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
   <br>
   <b>Orbis-Classic fork of shadPS4</b>
   <br>
-  <b>This is a fork of ShadPS4</b>
 </h1>
 
 <h1 align="center">
