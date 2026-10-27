@@ -448,12 +448,14 @@ Result Install(const std::filesystem::path& pkg_path, const Options& options, Pr
 
     const double seconds =
         std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
-    return finish(true,
-                  fmt::format("Installed {} {} {} to {} ({} in {}{})", KindName(plan.kind),
-                              plan.title_id, plan.version, plan.destination.string(),
-                              FormatBytes(result.bytes_written),
-                              FormatDuration(std::chrono::seconds{static_cast<s64>(seconds + 0.5)}),
-                              options.verify ? ", verified" : ""));
+    return finish(
+        true,
+        fmt::format("Installed {} {} {} to {} ({} in {}{})", KindName(plan.kind), plan.title_id,
+                    plan.version, plan.destination.string(), FormatBytes(result.bytes_written),
+                    seconds < 60.0
+                        ? fmt::format("{:.1f}s", seconds)
+                        : FormatDuration(std::chrono::seconds{static_cast<s64>(seconds + 0.5)}),
+                    options.verify ? ", verified" : ""));
 }
 
 std::string_view KindName(ContentKind kind) {

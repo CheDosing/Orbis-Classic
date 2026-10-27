@@ -102,6 +102,9 @@ int InstallPkgsFromCli(const std::vector<std::filesystem::path>& pkgs,
         while (progress.stage != PkgInstaller::Stage::Done) {
             std::this_thread::sleep_for(std::chrono::milliseconds(250));
             const auto current = progress.stage.load();
+            if (current == PkgInstaller::Stage::Done) {
+                break;
+            }
             if (current != stage) {
                 stage = current;
                 rate.Reset();
