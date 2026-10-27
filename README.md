@@ -21,7 +21,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 # General information
 
-**shadPS4** is an early **PlayStation 4** emulator for **Windows**, **Linux** and **macOS** written in C++.
+**Orbis Classic** is an open-source fork of ShadPS4 that uses AI to help improve testing, and porting old-features into the new updates of ShadPS4 written in C++. **Please go Support the official ShadPS4 Github**
 
 > [!IMPORTANT]
 > This is the emulator core, which does not include a GUI. If you just want to use the emulator as an end user, download the [**QtLauncher**](https://github.com/shadps4-emu/shadps4-qtlauncher/releases) instead.
