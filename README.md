@@ -7,8 +7,12 @@ SPDX-License-Identifier: GPL-2.0-or-later
   <br>
   <a href="https://shadps4.net/"><img src="https://github.com/shadps4-emu/shadPS4/blob/main/.github/shadps4.png" width="220"></a>
   <br>
-  <b>shadPS4</b>
+  <b>Orbis-Classic fork of shadPS4</b>
   <br>
+</h1>
+
+<h1 align="center">
+  This is a fork of ShadPS4; This repo is not affiliated with the ShadPS4 team.
 </h1>
 
 <h1 align="center">
