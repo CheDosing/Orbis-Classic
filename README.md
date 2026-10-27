@@ -11,19 +11,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
   <br>
 </h1>
 
-<h1 align="center">
- <a href="https://discord.gg/bFJxfftGW6">
-        <img src="https://img.shields.io/discord/1080089157554155590?color=5865F2&label=shadPS4%20Discord&logo=Discord&logoColor=white" width="275">
- <a href="https://github.com/shadps4-emu/shadPS4/releases/latest">
-        <img src="https://img.shields.io/github/downloads/shadps4-emu/shadPS4/total.svg" width="140">
- <a href="https://shadps4.net/">
-        <img src="https://img.shields.io/badge/shadPS4-website-8A2BE2" width="150">
- <a href="https://x.com/shadps4">
-        <img src="https://img.shields.io/badge/-Join%20us-black?logo=X&logoColor=white" width="100">
- <a href="https://github.com/shadps4-emu/shadPS4/stargazers">
-        <img src="https://img.shields.io/github/stars/shadps4-emu/shadPS4" width="120">
-</h1>
-
 |               Bloodborne by From Software                   |                     Hatsune Miku Project DIVA Future Tone by SEGA                         |
 | :-----------------------------------------------------------: | :--------------------------------------------------------------------------------------------: |
 | ![Bloodborne screenshot](./documents/Screenshots/1.png) | ![Project DIVA screenshot](./documents/Screenshots/2.png) |
@@ -55,53 +42,6 @@ Currently, the emulator can successfully run games like [**Bloodborne**](https:/
 # Why
 
 This project began for fun. Given our limited free time, it may take some time before shadPS4 can run more complex games, but we're committed to making small, regular updates.
-
-# Building
-
-## Docker
-
-For building shadPS4 in a containerized environment using Docker and VSCode, check the instructions here:  
-[**Docker Build Instructions**](https://github.com/shadps4-emu/shadPS4/blob/main/documents/building-docker.md)
-
-## Windows
-
-Check the build instructions for [**Windows**](https://github.com/shadps4-emu/shadPS4/blob/main/documents/building-windows.md).
-
-## Linux
-
-Check the build instructions for [**Linux**](https://github.com/shadps4-emu/shadPS4/blob/main/documents/building-linux.md).
-
-## macOS
-
-Check the build instructions for [**macOS**](https://github.com/shadps4-emu/shadPS4/blob/main/documents/building-macos.md).
-
-> [!IMPORTANT]
-> macOS users need at least macOS 26.0 to run shadPS4. Intel Macs are not supported.
-
-# Usage examples
-
-> [!IMPORTANT]
-> For a user-friendly GUI, download the [**QtLauncher**](https://github.com/shadps4-emu/shadps4-qtlauncher/releases).
-
-To get the list of all available commands and also a more detailed description of what each command does, please refer to the `--help` flag's output.
-
-Below is a list of commonly used command patterns:
-```sh
-shadPS4 CUSA00001 # Searches for a game folder called CUSA00001 in the list of game install folders, and boots it.
-shadPS4 --fullscreen true --config-clean CUSA00001    # the game argument is always the last one,
-shadPS4 -g CUSA00001 --fullscreen true --config-clean # ...unless manually specified otherwise.
-shadPS4 /path/to/game.elf # Boots a PS4 ELF file directly. Useful if you want to boot an executable that is not named eboot.bin.
-shadPS4 CUSA00001 -- -flag1 -flag2 # Passes '-flag1' and '-flag2' to the game executable in argv.
-```
-
-# Debugging and reporting issues
-
-For more information on how to test, debug and report issues with the emulator or games, read the [**Debugging documentation**](https://github.com/shadps4-emu/shadPS4/blob/main/documents/Debugging/Debugging.md).
-
-# Keyboard and Mouse Mappings
-
-> [!NOTE]
-> Some keyboards may also require you to hold the Fn key to use the F\* keys. Mac users should use the Command key instead of Control, and need to use Command+F11 for full screen to avoid conflicting with system key bindings.
 
 | Button | Function |
 |-------------|-------------|
@@ -167,9 +107,7 @@ The following firmware modules are supported and must be placed in shadPS4's `sy
 > [!Caution]
 > The above modules are required to run the games properly and must be dumped from your legally owned PlayStation 4 console.
 
-
-
-# Main team
+# The Main ShadPS4 team
 
 - [**georgemoralis**](https://github.com/georgemoralis)
 - [**psucien**](https://github.com/psucien)
@@ -185,12 +123,6 @@ Logo is done by [**Xphalnos**](https://github.com/Xphalnos)
 <a href="https://github.com/shadps4-emu/shadPS4/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=shadps4-emu/shadPS4&max=24">
 </a>
-
-# Contributing
-
-If you want to contribute, please read the [**CONTRIBUTING.md**](https://github.com/shadps4-emu/shadPS4/blob/main/CONTRIBUTING.md) file.\
-Open a PR and we'll check it :)
-
 
 # Special Thanks
 
