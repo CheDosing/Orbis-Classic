@@ -94,6 +94,28 @@ shadPS4 /path/to/game.elf # Boots a PS4 ELF file directly. Useful if you want to
 shadPS4 CUSA00001 -- -flag1 -flag2 # Passes '-flag1' and '-flag2' to the game executable in argv.
 ```
 
+# Installing PKG files (Orbis-Classic)
+
+Orbis-Classic brings back the PKG installer that upstream removed after v0.7.0. It installs fake-signed (fPKG) base games, updates and DLC.
+
+```sh
+shadPS4 --install-pkg game.pkg                       # installs into your first game folder
+shadPS4 --install-pkg game.pkg update.pkg dlc.pkg    # several at once, in order
+shadPS4 --install-pkg game.pkg --install-dir D:\PS4  # pick the game folder
+shadPS4 --install-pkg game.pkg --verify              # check the PKG checksum and re-read the installed files
+shadPS4 --install-pkg game.pkg --install-threads 2   # fewer threads, e.g. for a hard drive
+```
+
+| PKG type | Installed to |
+| --- | --- |
+| Base game | `<game folder>/CUSA00001` |
+| Update | `CUSA00001-UPDATE`, next to the base game |
+| DLC | `<addon folder>/CUSA00001/<entitlement>` (set it with `--set-addon-folder`) |
+
+In Big Picture mode (`-b`), use the **Install PKG** button. You can select several files, choose whether to verify, and watch progress with speed and ETA.
+
+Installs run in parallel across CPU cores with hardware-accelerated decryption. Press Ctrl+C or the Cancel button to stop. A cancelled or failed new install is cleaned up.
+
 # Debugging and reporting issues
 
 For more information on how to test, debug and report issues with the emulator or games, read the [**Debugging documentation**](https://github.com/shadps4-emu/shadPS4/blob/main/documents/Debugging/Debugging.md).

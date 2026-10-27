@@ -939,6 +939,13 @@ set(CORE src/core/aerolib/stubs.cpp
          src/core/file_sys/directories/pfs_directory.cpp
          src/core/file_sys/directories/pfs_directory.h
          src/core/file_format/pfs.h
+         src/core/file_format/pkg.cpp
+         src/core/file_format/pkg.h
+         src/core/file_format/pkg_crypto.cpp
+         src/core/file_format/pkg_crypto.h
+         src/core/file_format/pkg_keys.h
+         src/core/file_format/pkg_type.cpp
+         src/core/file_format/pkg_type.h
          src/core/file_format/psf.cpp
          src/core/file_format/psf.h
          src/core/file_format/playgo_chunk.cpp
@@ -1013,6 +1020,8 @@ set(CORE src/core/aerolib/stubs.cpp
          src/core/emulator_state.cpp
          src/core/emulator_state.h
          src/core/emulator_settings.cpp
+         src/core/pkg_installer.cpp
+         src/core/pkg_installer.h
          src/core/emulator_settings.h
          src/core/user_manager.cpp
          src/core/user_manager.h
@@ -1269,6 +1278,8 @@ set(IMGUI src/imgui/imgui_config.h
           src/imgui/renderer/texture_manager.cpp
           src/imgui/renderer/texture_manager.h
           src/imgui/big_picture/big_picture.cpp
+          src/imgui/big_picture/pkg_install_dialog.cpp
+          src/imgui/big_picture/pkg_install_dialog.h
           src/imgui/big_picture/big_picture.h
           src/imgui/big_picture/settings_dialog_imgui.cpp
           src/imgui/big_picture/settings_dialog_imgui.h

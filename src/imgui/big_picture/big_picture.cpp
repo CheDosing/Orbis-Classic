@@ -17,6 +17,7 @@
 #include "imgui/big_picture/big_picture.h"
 #include "imgui/big_picture/imgui_impl_sdl3_big_picture.h"
 #include "imgui/big_picture/imgui_impl_sdlrenderer3.h"
+#include "imgui/big_picture/pkg_install_dialog.h"
 #include "imgui/big_picture/settings_dialog_imgui.h"
 #include "imgui/imgui_std.h"
 #include "imgui/renderer/font_stack.h"
@@ -321,6 +322,7 @@ void Launch(char* executableName, bool sameProcess) {
     ImGui_ImplSDLRenderer3_Init(renderer);
 
     ImGuiEmuSettings::SettingsWindow settingsWindow(false);
+    PkgInstallDialog pkgInstallDialog;
 
     float sliderScale = 1.0f;
     auto applySettings = [&] {
@@ -412,10 +414,17 @@ void Launch(char* executableName, bool sameProcess) {
         ImGui::SameLine();
 
         // Align buttons right
-        float buttonsWidth = ImGui::CalcTextSize("Settings").x + ImGui::CalcTextSize("Exit").x +
-                             ImGui::GetStyle().FramePadding.x * 4.0f +
-                             ImGui::GetStyle().ItemSpacing.x;
+        float buttonsWidth = ImGui::CalcTextSize("Install PKG").x +
+                             ImGui::CalcTextSize("Settings").x + ImGui::CalcTextSize("Exit").x +
+                             ImGui::GetStyle().FramePadding.x * 6.0f +
+                             ImGui::GetStyle().ItemSpacing.x * 2.0f;
         ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - buttonsWidth);
+
+        if (ImGui::Button("Install PKG")) {
+            pkgInstallDialog.OpenFilePicker();
+        }
+
+        ImGui::SameLine();
 
         if (ImGui::Button("Settings")) {
             EmulatorSettings.SetBigPictureScale(static_cast<int>(uiScale * 1000));
@@ -455,6 +464,12 @@ void Launch(char* executableName, bool sameProcess) {
 
         if (showSettings) {
             settingsWindow.DrawSettings(&showSettings, applySettings);
+        }
+
+        bool gamesChanged = false;
+        pkgInstallDialog.Draw(uiScale, gamesChanged);
+        if (gamesChanged) {
+            GetGameIconInfo(gameIcons);
         }
 
         ImGui::PopStyleVar(8);

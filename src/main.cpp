@@ -1,11 +1,15 @@
 // SPDX-FileCopyrightText: Copyright 2025-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <chrono>
+#include <csignal>
+#include <cstdio>
 #include <filesystem>
 #include <iostream>
 #include <memory>
 #include <optional>
 #include <span>
+#include <thread>
 #include <vector>
 #include <CLI/CLI.hpp>
 #include <SDL3/SDL_messagebox.h>
@@ -22,6 +26,7 @@
 #include "core/emulator_state.h"
 #include "core/file_sys/fs.h"
 #include "core/ipc/ipc.h"
+#include "core/pkg_installer.h"
 #include "core/user_settings.h"
 #include "emulator.h"
 #include "imgui/big_picture/big_picture.h"
@@ -31,6 +36,106 @@
 #elif defined(__APPLE__)
 #include <sys/sysctl.h>
 #endif
+
+namespace {
+
+PkgInstaller::Progress* cli_install_progress = nullptr;
+
+void CancelCliInstall(int) {
+    if (cli_install_progress != nullptr) {
+        cli_install_progress->cancel = true;
+    }
+}
+
+std::filesystem::path DefaultInstallDir() {
+    for (const auto& dir : EmulatorSettings.GetAllGameInstallDirs()) {
+        if (dir.enabled) {
+            return dir.path;
+        }
+    }
+    return {};
+}
+
+int InstallPkgsFromCli(const std::vector<std::filesystem::path>& pkgs,
+                       const std::optional<std::filesystem::path>& install_dir, bool verify,
+                       u32 threads) {
+    PkgInstaller::Options options;
+    options.install_dir = install_dir.value_or(DefaultInstallDir());
+    options.addon_dir = EmulatorSettings.GetAddonInstallDir();
+    options.verify = verify;
+    options.threads = threads;
+
+    PkgInstaller::Progress progress;
+    cli_install_progress = &progress;
+    std::signal(SIGINT, CancelCliInstall);
+
+    int failures = 0;
+    for (size_t i = 0; i < pkgs.size() && !progress.cancel; i++) {
+        const auto& pkg_path = pkgs[i];
+        fmt::print("[{}/{}] {}\n", i + 1, pkgs.size(), pkg_path.filename().string());
+
+        PkgInstaller::Plan plan;
+        std::string failreason;
+        if (!PkgInstaller::Inspect(pkg_path, options, plan, failreason)) {
+            fmt::print("  Error: {}\n", failreason);
+            failures++;
+            continue;
+        }
+        fmt::print("  {} {} {} {}\n", PkgInstaller::KindName(plan.kind), plan.title_id,
+                   plan.version, plan.title);
+        if (plan.kind == PkgInstaller::ContentKind::Update && !plan.base_game_found) {
+            fmt::print("  Warning: base game {} not found, installing the update on its own\n",
+                       plan.title_id);
+        }
+        if (plan.already_installed) {
+            fmt::print("  Overwriting installed version {}\n",
+                       plan.installed_version.empty() ? "?" : plan.installed_version);
+        }
+        fmt::print("  -> {}\n", plan.destination.string());
+
+        progress.Reset();
+        PkgInstaller::Result result;
+        std::jthread worker([&] { result = PkgInstaller::Install(pkg_path, options, progress); });
+
+        PkgInstaller::RateEstimator rate;
+        auto stage = PkgInstaller::Stage::Idle;
+        while (progress.stage != PkgInstaller::Stage::Done) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            const auto current = progress.stage.load();
+            if (current != stage) {
+                stage = current;
+                rate.Reset();
+            }
+            const u64 done = progress.done_bytes;
+            const u64 total = progress.total_bytes;
+            if (total == 0) {
+                continue;
+            }
+            rate.Update(done);
+            fmt::print("\r  {:<10} {:5.1f}%  {} / {}  {}/s  ETA {}      ",
+                       PkgInstaller::StageName(stage), 100.0 * done / total,
+                       PkgInstaller::FormatBytes(done), PkgInstaller::FormatBytes(total),
+                       PkgInstaller::FormatBytes(rate.BytesPerSecond()),
+                       PkgInstaller::FormatDuration(rate.Eta(done, total)));
+            std::fflush(stdout);
+        }
+        worker.join();
+
+        fmt::print("\r{:<100}\r", "");
+        if (result.ok) {
+            fmt::print("  Done: {}\n", result.message);
+        } else {
+            fmt::print("  Error: {}\n", result.message);
+            failures++;
+        }
+    }
+
+    std::signal(SIGINT, SIG_DFL);
+    cli_install_progress = nullptr;
+    return failures == 0 ? 0 : 1;
+}
+
+} // namespace
 
 int main(int argc, char* argv[]) {
 #ifdef _WIN32
@@ -71,6 +176,10 @@ int main(int argc, char* argv[]) {
 
     std::optional<std::filesystem::path> addGameFolder;
     std::optional<std::filesystem::path> setAddonFolder;
+    std::vector<std::filesystem::path> installPkgs;
+    std::optional<std::filesystem::path> installDir;
+    bool verifyInstall = false;
+    u32 installThreads = 0;
     std::optional<std::string> patchFile;
 
     std::vector<std::pair<std::filesystem::path, std::string>> mounts;
@@ -105,6 +214,13 @@ int main(int argc, char* argv[]) {
 
     app.add_option("--add-game-folder", addGameFolder)->check(CLI::ExistingDirectory);
     app.add_option("--set-addon-folder", setAddonFolder)->check(CLI::ExistingDirectory);
+    app.add_option("--install-pkg", installPkgs, "Install one or more PKG files")
+        ->check(CLI::ExistingFile);
+    app.add_option("--install-dir", installDir, "Game folder to install PKGs into")
+        ->check(CLI::ExistingDirectory);
+    app.add_flag("--verify", verifyInstall, "Verify PKG checksums and installed files");
+    app.add_option("--install-threads", installThreads,
+                   "Worker threads for PKG installs (0 = automatic)");
     app.add_option("--mount", mounts, "Mount source to destination");
     app.add_option("-e,--env", env_vars, "Environment variables to pass to the guest");
 
@@ -180,6 +296,10 @@ int main(int argc, char* argv[]) {
         EmulatorSettings.Save();
         LOG_INFO(Config, "Addon folder successfully saved.");
         return 0;
+    }
+
+    if (!installPkgs.empty()) {
+        return InstallPkgsFromCli(installPkgs, installDir, verifyInstall, installThreads);
     }
 
     if (!gamePath.has_value()) {
