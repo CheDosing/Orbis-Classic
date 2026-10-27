@@ -12,7 +12,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 </h1>
 
 <h1 align="center">
-  This is a fork of ShadPS4; This repo is not affiliated with the ShadPS4 team.
+  This is a fork of ShadPS4
 </h1>
 
 <h1 align="center">
